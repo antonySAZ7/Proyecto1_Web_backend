@@ -6,4 +6,5 @@ type Series struct {
 	Genero    string `json:"genero"`
 	Capitulos int    `json:"capitulos"`
 	Portada   string `json:"portada"`
+	Rating    int    `json:"rating"`
 }

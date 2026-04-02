@@ -12,7 +12,7 @@ import (
 func GetSeries(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	rows, err := db.DB.Query("SELECT id, nombre, genero, capitulos, portada FROM series")
+	rows, err := db.DB.Query("SELECT id, nombre, genero, capitulos, portada, rating FROM series")
 	if err != nil {
 		http.Error(w, "Error DB", 500)
 		return
@@ -23,7 +23,7 @@ func GetSeries(w http.ResponseWriter, r *http.Request) {
 
 	for rows.Next() {
 		var s modelo.Series
-		err := rows.Scan(&s.Id, &s.Nombre, &s.Genero, &s.Capitulos, &s.Portada)
+		err := rows.Scan(&s.Id, &s.Nombre, &s.Genero, &s.Capitulos, &s.Portada, &s.Rating)
 		if err != nil {
 			http.Error(w, "Error leyendo DB", 500)
 			return
@@ -43,9 +43,9 @@ func GetSeriesByID(w http.ResponseWriter, r *http.Request) {
 	var s modelo.Series
 
 	err := db.DB.QueryRow(
-		"SELECT id, nombre, genero, capitulos, portada FROM series WHERE id=$1",
+		"SELECT id, nombre, genero, capitulos, portada, rating FROM series WHERE id=$1",
 		id,
-	).Scan(&s.Id, &s.Nombre, &s.Genero, &s.Capitulos, &s.Portada)
+	).Scan(&s.Id, &s.Nombre, &s.Genero, &s.Capitulos, &s.Portada, &s.Rating)
 
 	if err != nil {
 		http.Error(w, "No encontrada", 404)
@@ -71,11 +71,12 @@ func CreateSeries(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = db.DB.QueryRow(
-		"INSERT INTO series (nombre, genero, capitulos, portada) VALUES ($1, $2, $3, $4) RETURNING id",
+		"INSERT INTO series (nombre, genero, capitulos, portada, rating) VALUES ($1, $2, $3, $4, $5) RETURNING id",
 		s.Nombre,
 		s.Genero,
 		s.Capitulos,
 		s.Portada,
+		s.Rating,
 	).Scan(&s.Id)
 
 	if err != nil {
@@ -96,8 +97,8 @@ func UpdateSeries(w http.ResponseWriter, r *http.Request) {
 	json.NewDecoder(r.Body).Decode(&s)
 
 	_, err := db.DB.Exec(
-		"UPDATE series SET nombre=$1, genero=$2, capitulos=$3, portada=$4 WHERE id=$5",
-		s.Nombre, s.Genero, s.Capitulos, s.Portada, id,
+		"UPDATE series SET nombre=$1, genero=$2, capitulos=$3, portada=$4, rating=$5 WHERE id=$6",
+		s.Nombre, s.Genero, s.Capitulos, s.Portada, s.Rating, id,
 	)
 
 	if err != nil {
