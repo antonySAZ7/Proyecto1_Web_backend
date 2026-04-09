@@ -24,3 +24,6 @@ CREATE TABLE series (
     portada TEXT
 );
 para ejecutar: go run main.go
+
+
+los challenges, las screenshot y la reflexion estan en el readne dek fronted 
